@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#66000000"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="更多设置"
+        android:textColor="#ffffff"
+        android:textSize="22sp" />
+
+    <RelativeLayout
+        android:id="@+id/rl_size"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_title"
+        android:layout_marginTop="40dp"
+
+        >
+
+        <TextView
+            android:id="@+id/tv_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="画面尺寸:"
+            android:textColor="#ffffff" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@id/tv_size"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radio0"
+                style="@style/radioButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="全屏" />
+
+            <RadioButton
+                android:id="@+id/radio1"
+                style="@style/radioButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="拉伸" />
+
+            <RadioButton
+                android:id="@+id/radio2"
+                style="@style/radioButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="原始" />
+        </RadioGroup>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_volume"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_size"
+        android:layout_marginTop="40dp">
+
+        <TextView
+            android:id="@+id/tv_volume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="声音"
+            android:textColor="#ffffffff" />
+
+        <SeekBar
+            android:id="@+id/sb_volume"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_toRightOf="@id/tv_volume"
+            android:maxHeight="4dip"
+            android:minHeight="4dip"
+            android:progressDrawable="@drawable/player_setting_bright_progressbar"
+            android:thumb="@drawable/thumb_dn" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/rl_light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rl_volume"
+        android:layout_marginTop="40dp">
+
+        <TextView
+            android:id="@+id/tv_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="亮度"
+            android:textColor="#ffffffff" />
+
+        <SeekBar
+            android:id="@+id/sb_light"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_toRightOf="@id/tv_light"
+            android:maxHeight="4dip"
+            android:minHeight="4dip"
+            android:progressDrawable="@drawable/player_setting_bright_progressbar"
+            android:thumb="@drawable/thumb_dn" />
+    </RelativeLayout>
+
+</RelativeLayout>

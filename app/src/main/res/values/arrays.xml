@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="type">
+        <item> 网易云音乐</item>
+        <item> 电信iMusic </item>
+        <item> 5Sing原创</item>
+        <item> 百度音乐 </item>
+        <item>天天动听 </item>
+        <item>虾米音乐 </item>
+        <item>酷我音乐 </item>
+        <item>酷狗音乐</item>
+        <item> 多米音乐 </item>
+        <item>萌否音乐 </item>
+        <item>Echo回声</item>
+        <item>QQ音乐</item>
+
+    </string-array>
+</resources>
