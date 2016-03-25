@@ -31,16 +31,10 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.0'
     compile 'com.android.support:design:23.2.0'
     compile 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.zhy:okhttputils:2.3.8'
-    compile 'com.google.code.gson:gson:2.4'
-    compile 'com.squareup.okhttp3:okhttp:3.2.0'
-    compile 'com.squareup.okio:okio:1.6.0'
     compile 'com.android.support:cardview-v7:23.2.0'
     compile project(path: ':playerview')
     compile 'com.squareup.picasso:picasso:2.5.2'
-
     compile project(':vitamio')
-
     compile 'me.drakeet.uiview:androiduiview:1.1.5'
     compile 'com.squareup.retrofit2:retrofit:2.0.0'
     compile project(path: ':library')

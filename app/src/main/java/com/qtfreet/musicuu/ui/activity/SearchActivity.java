@@ -3,43 +3,49 @@ package com.qtfreet.musicuu.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.aspsine.multithreaddownload.CallBack;
 import com.aspsine.multithreaddownload.DownloadException;
 import com.aspsine.multithreaddownload.DownloadManager;
 import com.aspsine.multithreaddownload.DownloadRequest;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.qtfreet.musicuu.R;
+import com.qtfreet.musicuu.model.APi;
+import com.qtfreet.musicuu.model.ApiService;
 import com.qtfreet.musicuu.model.DownListener;
 import com.qtfreet.musicuu.model.MusicBean;
 import com.qtfreet.musicuu.model.resultBean;
 import com.qtfreet.musicuu.ui.adapter.SearchResultAdapter;
 import com.qtfreet.musicuu.utils.SPUtils;
-import com.qtfreet.musicuu.utils.StorageUtils;
 import com.qtfreet.musicuu.wiget.ActionSheetDialog;
 
 import java.io.File;
-import java.lang.reflect.Type;
 import java.text.DecimalFormat;
-import java.util.Iterator;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.drakeet.uiview.UIButton;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by qtfreet on 2016/3/20.
  */
-public class SearchActivity extends AppCompatActivity implements DownListener {
+public class SearchActivity extends AppCompatActivity implements DownListener, SwipeRefreshLayout.OnRefreshListener {
 
     private SearchResultAdapter searchResultAdapter;
 
@@ -51,16 +57,92 @@ public class SearchActivity extends AppCompatActivity implements DownListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         initview();
+        initData();
+        mSearchProgressBar.setVisibility(View.VISIBLE);
     }
 
+    private void initData() {
+        showRefreshing(true);
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(APi.MUSICUU_API)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiService apiService = retrofit.create(ApiService.class);
+        Call<List<resultBean>> call = apiService.GetInfo(getIntent().getExtras().getString("key"), getIntent().getExtras().getString("type"));
+        call.enqueue(new Callback<List<resultBean>>() {
+
+            @Override
+            public void onResponse(Call<List<resultBean>> call, Response<List<resultBean>> response) {
+                showRefreshing(false);
+                result = response.body();
+                handler.sendEmptyMessage(REQUEST_SUCCESS);
+                mSearchProgressBar.setVisibility(View.GONE);
+
+            }
+
+            @Override
+            public void onFailure(Call<List<resultBean>> call, Throwable t) {
+                showRefreshing(false);
+                mSearchProgressBar.setVisibility(View.GONE);
+                handler.sendEmptyMessage(REQUEST_ERROR);
+            }
+        });
+    }
+
+    private SwipeRefreshLayout refresh;
+    private List<resultBean> result = null;
+    @Bind(R.id.pb_search_wait)
+    ProgressBar mSearchProgressBar;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.title_name)
     TextView toolbarTitle;
-    private List<resultBean> result;
+
+    private android.os.Handler handler = new android.os.Handler(new android.os.Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case REQUEST_SUCCESS:
+                    searchResultAdapter = new SearchResultAdapter(SearchActivity.this, result);
+                    search_list.setAdapter(searchResultAdapter);
+                    search_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                            MusicBean.listenUrl = result.get(position).getListenUrl();
+                            MusicBean.pic = result.get(position).getPicUrl();
+                            MusicBean.time = result.get(position).getLength();
+                            MusicBean.videoUrl = result.get(position).getVideoUrl();
+                            MusicBean.songName = result.get(position).getSongName();
+                            MusicBean.artist = result.get(position).getArtist();
+                            Intent i = new Intent(SearchActivity.this, MusicPlayer.class);
+                            startActivity(i);
+                        }
+                    });
+                    searchResultAdapter.setDownloadListener(SearchActivity.this);
+                    break;
+                case REQUEST_ERROR:
+                    Toast.makeText(SearchActivity.this, "获取信息失败", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+            return false;
+        }
+    });
+
+    private void showRefreshing(boolean isShow) {
+        if (isShow) {
+            refresh.setProgressViewOffset(false, 0, (int) (getResources().getDisplayMetrics().density * 24 +
+                    0.5f));
+            refresh.setRefreshing(true);
+        } else {
+            refresh.setRefreshing(false);
+        }
+    }
 
     private void initview() {
         ButterKnife.bind(this);
+        refresh = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh);
+        refresh.setOnRefreshListener(this);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             if (toolbarTitle != null) {
@@ -69,35 +151,6 @@ public class SearchActivity extends AppCompatActivity implements DownListener {
                 toolbarTitle.setText("搜索");
             }
         }
-        String data = getIntent().getExtras().getString("data");
-
-        Type listType = new TypeToken<List<resultBean>>() {
-        }.getType();
-        Gson gson = new Gson();
-        result = gson.fromJson(data, listType);
-        for (Iterator iterator = result.iterator(); iterator.hasNext(); ) {
-            resultBean resource = (resultBean) iterator.next();
-            System.out.println("musicName-->" + resource.getSongName());
-        }
-        searchResultAdapter = new SearchResultAdapter(this, result);
-        search_list.setAdapter(searchResultAdapter);
-        search_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                MusicBean.listenUrl = result.get(position).getListenUrl();
-                MusicBean.pic = result.get(position).getPicUrl();
-                MusicBean.time = result.get(position).getLength();
-                MusicBean.videoUrl = result.get(position).getVideoUrl();
-                MusicBean.songName = result.get(position).getSongName();
-                MusicBean.artist = result.get(position).getArtist();
-                Intent i = new Intent(SearchActivity.this, MusicPlayer.class);
-                startActivity(i);
-            }
-        });
-
-
-        searchResultAdapter.setDownloadListener(this);
     }
 
 
@@ -115,8 +168,6 @@ public class SearchActivity extends AppCompatActivity implements DownListener {
                         type = ".mp3";
                     }
                     download(songName + "-" + artist + type, lqUrl, songId, btn_down);
-
-
                 }
             });
         }
@@ -184,6 +235,10 @@ public class SearchActivity extends AppCompatActivity implements DownListener {
         actionSheetDialog.show();
     }
 
+
+    private static final int REQUEST_SUCCESS = 1;
+    private static final int REQUEST_ERROR = 0;
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -241,5 +296,10 @@ public class SearchActivity extends AppCompatActivity implements DownListener {
                 btn.setText("失败");
             }
         });
+    }
+
+    @Override
+    public void onRefresh() {
+        initData();
     }
 }

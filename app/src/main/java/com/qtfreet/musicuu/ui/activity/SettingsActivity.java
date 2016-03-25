@@ -11,6 +11,7 @@ import android.preference.PreferenceScreen;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.qtfreet.musicuu.R;
@@ -56,6 +57,16 @@ public class SettingsActivity extends AppCompatActivity {
     public void replaceFragment(int viewId, android.app.Fragment fragment) {
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(viewId, fragment).commit();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            this.finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     /**

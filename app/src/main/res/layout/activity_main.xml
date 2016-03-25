@@ -68,13 +68,7 @@
             drakeet:color_pressed="#6a66ee"
             drakeet:color_unpressed="#6aacee" />
 
-        <ProgressBar
-            android:id="@+id/pb_search_wait"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:visibility="gone" />
+
 
 
     </LinearLayout>
