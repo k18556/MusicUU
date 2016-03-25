@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -31,7 +32,7 @@ import co.mobiwise.playerview.MusicPlayerView;
 /**
  * Created by qtfreet on 2016/3/20.
  */
-public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnCompletionListener {
+public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnPreparedListener {
     private MusicPlayerView mpv;
 
     @Bind(R.id.mv)
@@ -94,6 +95,8 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     Toolbar toolbar;
     @Bind(R.id.title_name)
     TextView toolbarTitle;
+    @Bind(R.id.pb_search_wait)
+    ProgressBar mSearchProgressBar;
 
     private void updataProgressBar() {
         if (media == null) {
@@ -102,7 +105,8 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         if (!isShowCurrentTime) {
             return;
         }
-        int currentTime = (media.getCurrentPosition() / 1000);
+        int currentTime = (media.getCurrentPosition());
+        Log.e("TAG", currentTime + "");
         tv_current_time.setText(SystemUtil.generateTime(media.getCurrentPosition()));
         mseekBar.setProgress(currentTime);
     }
@@ -122,13 +126,15 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             }
         }).start();
         mpv.setProgressVisibility(false);
-
+        mpv.setVisibility(View.INVISIBLE);
         media = new MediaPlayer();
+        media.reset();
         media.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
             media.setDataSource(url);
             media.prepareAsync();
-
+            media.setOnPreparedListener(this);
+            media.setOnBufferingUpdateListener(this);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -138,6 +144,7 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
 
     private void initview() {
         ButterKnife.bind(this);
+        mSearchProgressBar.setVisibility(View.VISIBLE);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             if (toolbarTitle != null) {
@@ -151,12 +158,7 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         if (MvUrl.equals("")) {
             mv.setVisibility(View.INVISIBLE);
         }
-        if (!time.equals("")) {
-            mseekBar.setMax((int) util.getIntTime(time));
-            tv_duration_time.setText(time);
-        } else {
-            mseekBar.setVisibility(View.INVISIBLE);
-        }
+
         loadCover(pic, url);
 
         mseekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -166,7 +168,7 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                     return;
                 }
                 if (seekBar == mseekBar) {
-                    media.seekTo(1000 * progress);
+                    media.seekTo(progress);
 
                     Log.e("TAG", progress + " ");
                 }
@@ -242,5 +244,19 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             mp.pause();
             mseekBar.setProgress(0);
         }
+    }
+
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+        mseekBar.setMax(mp.getDuration());
+        tv_duration_time.setText(SystemUtil.generateTime(mp.getDuration()));
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        mpv.setVisibility(View.VISIBLE);
+        mSearchProgressBar.setVisibility(View.GONE);
+
     }
 }
