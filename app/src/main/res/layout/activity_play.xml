@@ -6,6 +6,8 @@
     android:background="#25272d"
     android:orientation="vertical">
 
+    <include layout="@layout/view_toolbar"/>
+
     <co.mobiwise.playerview.MusicPlayerView
         android:id="@+id/mpv"
         android:layout_width="250dp"
@@ -19,10 +21,49 @@
 
     <ImageButton
         android:id="@+id/mv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="47dip"
+        android:layout_height="20dip"
+
         android:layout_below="@+id/mpv"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dip"
+        android:layout_marginTop="10dp"
         android:background="@drawable/btn_mv" />
+
+
+    <TextView
+        android:id="@+id/tv_current_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/mpv"
+        android:layout_marginLeft="10dip"
+        android:layout_marginTop="30dip"
+        android:text="01.33"
+        android:textColor="#ffffff" />
+
+
+    <TextView
+        android:id="@+id/tv_duration_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/mpv"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="30dip"
+        android:text="01:12:16"
+        android:textColor="#ffffff" />
+
+    <android.support.v7.widget.AppCompatSeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_current_time"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dip"
+        android:maxHeight="4dip"
+        android:minHeight="4dip"
+        android:progressDrawable="@drawable/player_setting_bright_progressbar"
+        android:thumb="@drawable/thumb_dn" />
 </RelativeLayout>

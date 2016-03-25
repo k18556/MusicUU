@@ -3,19 +3,22 @@
     package="com.qtfreet.musicuu">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
     <application
-        android:allowBackup="false"
+        android:name=".ui.App"
+        android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:label="MusicUU"
+
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
             android:name=".ui.activity.MainActivity"
+
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -41,7 +44,14 @@
             android:launchMode="singleTop"
             android:theme="@android:style/Theme.NoTitleBar"
             android:windowSoftInputMode="stateAlwaysHidden" />
+
         <service android:name=".ui.service.DownloadService" />
+        <service android:name=".ui.service.MusicService" />
+
+        <activity
+            android:name=".ui.activity.SettingsActivity"
+            android:label=""
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

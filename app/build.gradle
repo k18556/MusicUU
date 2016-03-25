@@ -38,6 +38,11 @@ dependencies {
     compile 'com.android.support:cardview-v7:23.2.0'
     compile project(path: ':playerview')
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile name: 'materialProgress', ext: 'aar'
+
     compile project(':vitamio')
+
+    compile 'me.drakeet.uiview:androiduiview:1.1.5'
+    compile 'com.squareup.retrofit2:retrofit:2.0.0'
+    compile project(path: ':library')
+    compile 'com.squareup.retrofit2:converter-gson:2.0.0'
 }

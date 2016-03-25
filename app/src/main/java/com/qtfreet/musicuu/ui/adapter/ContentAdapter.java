@@ -1,7 +1,6 @@
 package com.qtfreet.musicuu.ui.adapter;
 
 import android.content.Context;
-
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,11 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-
 import com.qtfreet.musicuu.R;
 import com.qtfreet.musicuu.model.resultBean;
-import com.qtfreet.musicuu.ui.activity.SearchActivity;
-import com.qtfreet.musicuu.wiget.ActionSheetDialog;
 
 import java.util.List;
 

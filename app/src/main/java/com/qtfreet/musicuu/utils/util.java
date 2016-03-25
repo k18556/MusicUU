@@ -15,39 +15,7 @@ import java.util.Date;
 public class util {
 
 
-    public static String music_type(Context con, int postion) {
-        String[] lan = con.getResources().getStringArray(R.array.type);
-        String type = lan[postion];
-        if (type.equals(lan[0])) {
-            type = "wy";
-        } else if (type.equals(lan[1])) {
-            type = "dx";
-        } else if (type.equals(lan[2])) {
-            type = "fs";
-        } else if (type.equals(lan[3])) {
-            type = "bd";
-        } else if (type.equals(lan[4])) {
-            type = "tt";
-        } else if (type.equals(lan[5])) {
-            type = "xm";
-        } else if (type.equals(lan[6])) {
-            type = "kw";
-        } else if (type.equals(lan[7])) {
-            type = "kg";
-        } else if (type.equals(lan[8])) {
-            type = "dm";
-        } else if (type.equals(lan[9])) {
-            type = "mf";
-        } else if (type.equals(lan[10])) {
-            type = "echo";
-        } else if (type.equals(lan[11])) {
-            type = "qq";
-        }
 
-
-        return type;
-
-    }
 
     public static long getIntTime(String time) {
 

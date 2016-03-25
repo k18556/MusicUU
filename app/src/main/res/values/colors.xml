@@ -9,4 +9,8 @@
     <color name="actionsheet_gray">#8F8F8F</color>
     <color name="black">#000000</color>
     <color name="trans">#00000000</color>
+    <color name="main_dark">#FF535353</color>
+    <color name="white">#ffffff</color>
+    <color name="gray_de">#666666</color>
+    <color name="list_item_press">#216b74ff</color>
 </resources>

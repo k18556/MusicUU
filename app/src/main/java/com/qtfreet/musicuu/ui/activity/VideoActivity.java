@@ -13,6 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -26,7 +27,11 @@ import com.qtfreet.musicuu.utils.SystemUtil;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import io.vov.vitamio.LibsChecker;
 import io.vov.vitamio.MediaPlayer;
 import io.vov.vitamio.MediaPlayer.OnPreparedListener;
@@ -51,6 +56,8 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
     private String videoPath;
     private String videoName;
     private View main;
+    @Bind(R.id.pb_search_wait)
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +69,7 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
         if (!LibsChecker.checkVitamioLibs(this)) {
             return;
         }
+
         main = getLayoutInflater().inflate(R.layout.activity_mv, null);
         setContentView(main);
         main.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -120,7 +128,7 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
     ExecutorService e;
 
     private void initThread() {
-        e = MyThreadPool.getInstance().getMyExecutorService();
+        e = Executors.newSingleThreadExecutor();
         e.execute(new Runnable() {
             @Override
             public void run() {
@@ -142,6 +150,7 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
             }
         });
 
+
     }
 
     @Override
@@ -149,6 +158,7 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
         isShowCurrentTime = false;
         super.onDestroy();
         if (videoView != null) {
+            
             videoView = null;
         }
 
@@ -169,14 +179,10 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
 
 
     private void initVideoView() {
+        ButterKnife.bind(this);
+        progressBar.setVisibility(View.VISIBLE);
         videoView = (VideoView) findViewById(R.id.vv);
-
-//        HashMap<String, String> opt = new HashMap<String, String>();
-//		opt.put("headers","Cookie: FTN5K=316c3400\n");
-//        videoView.setVideoURI(Uri.parse(videoPath));
         videoView.setVideoURI(Uri.parse(videoPath));
-
-
         videoView.setOnPreparedListener(this);
         videoView.setOnCompletionListener(this);
 
@@ -205,7 +211,6 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
 
     private void initPopupWindow() {
         final View view = View.inflate(this, R.layout.pop_window, null);
-
         rbOriginSize = (RadioButton) view.findViewById(R.id.radio2);
         rbAllSize = (RadioButton) view.findViewById(R.id.radio0);
         rbFixAllSize = (RadioButton) view.findViewById(R.id.radio1);
@@ -352,6 +357,7 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        progressBar.setVisibility(View.GONE);
         Log.e("TAG", "开始准备");
         int duration = (int) (videoView.getDuration() / 1000);
         seekBar.setMax(duration);

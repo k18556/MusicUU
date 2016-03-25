@@ -5,40 +5,34 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
+import android.view.View;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.qtfreet.musicuu.R;
 import com.qtfreet.musicuu.model.APi;
-import com.qtfreet.musicuu.model.resultBean;
-import com.qtfreet.musicuu.ui.adapter.ContentAdapter;
-import com.qtfreet.musicuu.utils.util;
+import com.qtfreet.musicuu.utils.FileUtils;
+import com.qtfreet.musicuu.utils.SPUtils;
+import com.qtfreet.musicuu.wiget.ActionSheetDialog;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.util.Iterator;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import okhttp3.Call;
+import me.drakeet.uiview.UIButton;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,28 +41,68 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         initview();
+//        init();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startSearchSong();
-            }
-        });
     }
 
+    @Override
+    protected void onResume() {
+        initDir();
+        super.onResume();
+    }
+
+    private void initDir() {
+        String path = (String) SPUtils.get("com.qtfreet.musicuu_preferences", this, "SavePath", "musicuu");
+        Log.e("TAG", path + "                                     11111");
+
+        if (FileUtils.getInstance().isSdCardAvailable()) {
+            if (!FileUtils.getInstance().isFileExist(path)) {
+                FileUtils.getInstance().creatSDDir(path);
+            }
+        }
+    }
+//
+//    private void init() {
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl("http://musicuu.com/")
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//        GitHubService gitHubService = retrofit.create(GitHubService.class);
+//        Call<List<resultBean>> call = gitHubService.GetInfo("i", "wy");
+//        call.enqueue(new Callback<List<resultBean>>() {
+//            @Override
+//            public void onResponse(Call<List<resultBean>> call, Response<List<resultBean>> response) {
+//                String art = response.body().get(0).getArtist();
+//                Log.e("TAG", art);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<List<resultBean>> call, Throwable t) {
+//
+//            }
+//        });
+//
+//
+//    }
+//
+//    public interface GitHubService {
+//        @GET("service/getIpInfo.php")
+//        Call<List<resultBean>> GetInfo(@Query("key") String key, @Query("type") String type);
+//    }
 
     private static final int REQUEST_SUCCESS = 1;
     private static final int REQUEST_ERROR = 0;
 
     String musictype = "";
+    private UIButton btn_search;
 
     private void startSearchSong() {
-        String text = search_text.getText().toString();
+        String text = mSearchEditText.getText().toString();
         if (text.equals("")) {
             Toast.makeText(MainActivity.this, "名字不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
+        mSearchProgressBar.setVisibility(View.VISIBLE);
         try {
             text = URLEncoder.encode(text, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -76,9 +110,9 @@ public class MainActivity extends AppCompatActivity {
         }
         OkHttpUtils.get().url(APi.MUSICUU_API + "key=" + text + "&" + "type=" + musictype).build().execute(new StringCallback() {
 
-            @Override
-            public void onError(Call call, Exception e) {
 
+            @Override
+            public void onError(okhttp3.Call call, Exception e) {
                 Message msg = Message.obtain();
                 msg.what = REQUEST_ERROR;
                 msg.obj = e.toString();
@@ -103,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
             switch (msg.what) {
                 case REQUEST_SUCCESS:
-
+                    mSearchProgressBar.setVisibility(View.GONE);
                     if (msg.obj != null) {
                         Bundle bundle = new Bundle();
                         bundle.putString("data", msg.obj.toString());
@@ -123,10 +157,20 @@ public class MainActivity extends AppCompatActivity {
         }
     });
 
+    @Bind(R.id.ib_search_btn)
+    ImageButton mSearchButton;
+    @Bind(R.id.et_search_content)
+    EditText mSearchEditText;
+    @Bind(R.id.pb_search_wait)
+    ProgressBar mSearchProgressBar;
+
 
     private void initview() {
         ButterKnife.bind(this);
-//        musictype = util.music_type(MainActivity.this, 0);
+        btn_search = (UIButton) findViewById(R.id.btn_search);
+        FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
+
+        musictype = "wy";
         if (toolbar != null) {
             setSupportActionBar(toolbar);
             if (toolbarTitle != null) {
@@ -134,26 +178,22 @@ public class MainActivity extends AppCompatActivity {
                 toolbarTitle.setText(R.string.main_title);
             }
         }
-        type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        floatingActionButton.setOnClickListener(this);
+        btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                musictype = util.music_type(MainActivity.this, position);
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onClick(View v) {
+                startSearchSong();
 
             }
         });
-
+        mSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startSearchSong();
+            }
+        });
     }
 
-
-    @Bind(R.id.search_text)
-    EditText search_text;
-    @Bind(R.id.type)
-    Spinner type;
     @Bind(R.id.toolbar)
     Toolbar toolbar;
     @Bind(R.id.title_name)
@@ -174,11 +214,81 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            Intent i = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(i);
         }
 
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.fab:
+                new ActionSheetDialog(MainActivity.this).builder().setTitle("选择音源").addSheetItem("网易云音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "wy";
+                    }
+                }).addSheetItem("电信爱音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "dx";
+                    }
+                }).addSheetItem("5Sing", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "fs";
+                    }
+                }).addSheetItem("百度音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "bd";
+                    }
+                }).addSheetItem("天天动听", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "tt";
+                    }
+                }).addSheetItem("虾米音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "xm";
+                    }
+                }).addSheetItem("酷我音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "kw";
+                    }
+                }).addSheetItem("酷狗音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "kg";
+                    }
+                }).addSheetItem("多米音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "dm";
+                    }
+                }).addSheetItem("萌否音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "mf";
+                    }
+                }).addSheetItem("Echo回声", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "echo";
+                    }
+                }).addSheetItem("QQ音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
+                    @Override
+                    public void onClick(int which) {
+                        musictype = "qq";
+                    }
+                }).show();
+                break;
+        }
     }
 }

@@ -1,1 +1,1 @@
-include ':app', ':playerview',':vitamio'
+include ':app', ':playerview', ':vitamio', ':library'
