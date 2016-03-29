@@ -20,6 +20,7 @@
             android:summary="默认保存在SD卡musicuu文件夹下"
             android:title="下载路径" />
 
+
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -44,13 +45,21 @@
 
     <PreferenceCategory
         android:layout="@layout/preference_category_widget"
-        android:title="作者">
+        android:title="那些人">
         <Preference
             android:layout="@layout/preference_item"
-            android:title="qtfreet00">
+            android:title="程序设计:qtfreet00">
             <intent
                 android:action="android.intent.action.VIEW"
                 android:data="http://weibo.com/u/3552577720" />
+        </Preference>
+
+        <Preference
+            android:layout="@layout/preference_item"
+            android:title="UI设计:Hiapk-天使">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="http://weibo.com/u/2535451595" />
         </Preference>
     </PreferenceCategory>
 </PreferenceScreen>

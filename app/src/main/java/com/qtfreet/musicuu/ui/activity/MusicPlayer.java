@@ -4,12 +4,14 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -42,7 +44,9 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_play);
+
         pic = MusicBean.pic;
         MvUrl = MusicBean.videoUrl;
         url = MusicBean.listenUrl;
@@ -169,7 +173,6 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                 }
                 if (seekBar == mseekBar) {
                     media.seekTo(progress);
-
                     Log.e("TAG", progress + " ");
                 }
             }
@@ -190,7 +193,6 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             public void onClick(View v) {
                 if (mpv.isRotating()) {
                     mpv.stop();
-
                     media.pause();
                 } else {
                     mpv.start();
@@ -232,6 +234,15 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             media.reset();
             media.release();
             mpv.stop();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mpv.isRotating()) {
+            mpv.stop();
+            media.pause();
         }
     }
 

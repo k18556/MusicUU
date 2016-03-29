@@ -11,66 +11,84 @@
         android:id="@+id/tool"
         layout="@layout/view_toolbar" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="100dip"
-        android:orientation="vertical"
-        android:paddingLeft="25dp"
-        android:paddingRight="25dp"
-        android:paddingTop="5dp">
+        android:orientation="vertical">
 
-
-
-        <LinearLayout
-            android:id="@+id/ll_search_container"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp"
-            android:layout_marginRight="5dp"
-            android:background="@drawable/search_btn_bg"
+            android:layout_marginTop="100dip"
+            android:gravity="center_horizontal"
             android:orientation="horizontal"
-            android:padding="5dp"
-            >
+            android:paddingLeft="25dp"
+            android:paddingRight="25dp"
+            android:paddingTop="5dp">
 
-            <EditText
-                android:id="@+id/et_search_content"
-                style="?android:attr/textViewStyle"
+
+            <LinearLayout
+                android:id="@+id/ll_search_container"
                 android:layout_width="0dip"
-                android:singleLine="true"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="4dip"
                 android:layout_weight="1"
-                android:background="@null"
-                android:hint="搜索"
-                android:padding="2dp"
-                android:textColor="#FF666666" />
+                android:background="@drawable/search_btn_bg"
+                android:orientation="horizontal"
+                android:padding="5dp">
 
-            <ImageButton
-                android:id="@+id/ib_search_btn"
+                <EditText
+                    android:id="@+id/et_search_content"
+                    style="?android:attr/textViewStyle"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="搜索"
+                    android:padding="2dp"
+                    android:singleLine="true"
+                    android:textColor="#FF666666" />
+
+                <ImageButton
+                    android:id="@+id/ib_search_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:background="@null"
+                    android:padding="0dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/search_drawable_left" />
+            </LinearLayout>
+
+
+            <me.drakeet.uiview.UIButton
+                android:id="@+id/btn_search"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@null"
-                android:padding="0dp"
-                android:scaleType="centerInside"
-                android:src="@drawable/search_drawable_left" />
+                android:layout_height="40dip"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/btn_search"
+                drakeet:alpha_pressed="40"
+                drakeet:color_pressed="#6a66ee" />
+
         </LinearLayout>
 
-        <me.drakeet.uiview.UIButton
-            android:id="@+id/btn_search"
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dip" />
+
+        <TextView
+            android:id="@+id/text"
             android:layout_width="wrap_content"
-            android:layout_height="40dip"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="20dip"
-            android:background="@android:color/transparent"
-            android:text="@string/btn_search"
-            drakeet:alpha_pressed="40"
-            drakeet:color_pressed="#6a66ee"
-            drakeet:color_unpressed="#6aacee" />
-
-
-
-
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dip"
+            android:layout_marginRight="15dip"
+            android:layout_marginTop="30dip"
+            android:lineSpacingExtra="5dip" />
     </LinearLayout>
 
 
@@ -80,8 +98,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        drakeet:borderWidth="0dp"
-        android:src="@android:drawable/ic_menu_add"
- />
+        android:src="@android:drawable/ic_input_add"
+        drakeet:borderWidth="0dp" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -64,6 +64,8 @@ public class SearchResultAdapter extends BaseAdapter {
             holder.album = (TextView) convertView.findViewById(R.id.tv_search_result_album);
             holder.pic = (ImageView) convertView.findViewById(R.id.pic);
             holder.btn_down = (UIButton) convertView.findViewById(R.id.btn_down);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.exist_mv);
+
 
             convertView.setTag(holder);
         } else {
@@ -76,6 +78,9 @@ public class SearchResultAdapter extends BaseAdapter {
 
         if (!TextUtils.isEmpty(artist)) holder.artist.setText(artist);
         else holder.artist.setText("未知艺术家");
+        if(!mSearchResult.get(position).getVideoUrl().equals("")){
+            holder.imageView.setVisibility(View.VISIBLE);
+        }
 
         if (!TextUtils.isEmpty(album)) holder.album.setText(album);
         else holder.album.setText("未知专辑");
@@ -97,5 +102,6 @@ public class SearchResultAdapter extends BaseAdapter {
         public TextView album;
         public ImageView pic;
         public UIButton btn_down;
+        public ImageView imageView;
     }
 }

@@ -1,8 +1,12 @@
 package com.qtfreet.musicuu.ui.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -11,20 +15,33 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.pgyersdk.feedback.PgyFeedbackShakeManager;
+import com.pgyersdk.javabean.AppBean;
+import com.pgyersdk.update.PgyUpdateManager;
+import com.pgyersdk.update.UpdateManagerListener;
 import com.qtfreet.musicuu.R;
+import com.qtfreet.musicuu.model.APi;
+import com.qtfreet.musicuu.model.ApiService;
+import com.qtfreet.musicuu.model.RecomendResult;
 import com.qtfreet.musicuu.utils.FileUtils;
 import com.qtfreet.musicuu.utils.SPUtils;
 import com.qtfreet.musicuu.wiget.ActionSheetDialog;
+import com.squareup.picasso.Picasso;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.drakeet.uiview.UIButton;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -34,13 +51,118 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        firstuse();
         initview();
+        initImage();
+        checkUpdate();
     }
+
+    private void firstuse() {
+        boolean isfirst = (boolean) SPUtils.get(this, "isfirst", true);
+        if (isfirst) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("温馨提示");
+
+            builder.setMessage(getString(R.string.description));
+            builder.setCancelable(false);
+            builder.setNegativeButton("知道了", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    SPUtils.put(MainActivity.this, "isfirst", false);
+                }
+            });
+            builder.show();
+        }
+    }
+
+    private void initImage() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(APi.MUSIC_HOST)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        ApiService apiService = retrofit.create(ApiService.class);
+        Call<List<RecomendResult>> call = apiService.GetRec("all", "1", "json");
+        call.enqueue(new Callback<List<RecomendResult>>() {
+            @Override
+            public void onResponse(Call<List<RecomendResult>> call, Response<List<RecomendResult>> response) {
+                if (response == null) {
+                    return;
+                }
+                imageText = response.body().get(0).getAlbumDesp();
+                imageurl = response.body().get(0).getAlnumPic();
+                handler.sendEmptyMessage(0);
+
+            }
+
+            @Override
+            public void onFailure(Call<List<RecomendResult>> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private android.os.Handler handler = new android.os.Handler(new android.os.Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    textView.setText("    " + imageText.replaceAll("<br/>", ","));
+                    Picasso.with(MainActivity.this).load(imageurl).into(imageView);
+                    break;
+                case 1:
+
+                    break;
+            }
+            return false;
+        }
+    });
+
+    String imageurl = "";
+    String imageText = "";
 
     @Override
     protected void onResume() {
         initDir();
         super.onResume();
+        // 自定义摇一摇的灵敏度，默认为950，数值越小灵敏度越高。
+        PgyFeedbackShakeManager.setShakingThreshold(1100);
+        // 以对话框的形式弹出
+        PgyFeedbackShakeManager.register(MainActivity.this);
+
+    }
+
+    private void checkUpdate() {
+        PgyUpdateManager.register(MainActivity.this,
+                new UpdateManagerListener() {
+
+                    @Override
+                    public void onUpdateAvailable(final String result) {
+
+                        // 将新版本信息封装到AppBean中
+                        final AppBean appBean = getAppBeanFromString(result);
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("有更新啦")
+                                .setMessage(appBean.getReleaseNote())
+                                .setNegativeButton(
+                                        "确定",
+                                        new DialogInterface.OnClickListener() {
+
+                                            @Override
+                                            public void onClick(
+                                                    DialogInterface dialog,
+                                                    int which) {
+                                                startDownloadTask(
+                                                        MainActivity.this,
+                                                        appBean.getDownloadURL());
+                                            }
+                                        }).show();
+                    }
+
+                    @Override
+                    public void onNoUpdateAvailable() {
+                    }
+                });
     }
 
     private void initDir() {
@@ -54,19 +176,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        PgyFeedbackShakeManager.unregister();
+    }
+
     String musictype = "";
     private UIButton btn_search;
+    @Bind(R.id.text)
+    TextView textView;
+    @Bind(R.id.image)
+    ImageView imageView;
 
     private void startSearchSong() {
         String text = mSearchEditText.getText().toString();
         if (text.equals("")) {
-            Toast.makeText(MainActivity.this, "名字不能为空", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "你还没有输入歌曲名字呢", Toast.LENGTH_SHORT).show();
             return;
-        }
-        try {
-            text = URLEncoder.encode(text, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         }
         Bundle bundle = new Bundle();
         bundle.putString("key", text);
@@ -84,6 +211,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initview() {
         ButterKnife.bind(this);
+        Typeface customFont = Typeface.createFromAsset(this.getAssets(), "font/font.ttc");
+        textView.setTypeface(customFont);
         btn_search = (UIButton) findViewById(R.id.btn_search);
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -109,6 +238,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startSearchSong();
             }
         });
+
     }
 
     @Bind(R.id.toolbar)
@@ -189,11 +319,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(int which) {
                         musictype = "mf";
-                    }
-                }).addSheetItem("Echo回声", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
-                    @Override
-                    public void onClick(int which) {
-                        musictype = "echo";
                     }
                 }).addSheetItem("QQ音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
                     @Override

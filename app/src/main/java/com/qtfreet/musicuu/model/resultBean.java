@@ -5,282 +5,259 @@ package com.qtfreet.musicuu.model;
  */
 public class resultBean {
     private String SongId;
+
     private String SongName;
+
     private String SubTitle;
+
     private String Artist;
+
     private String ArtistSubTitle;
+
     private String AlbumId;
+
     private String Album;
+
     private String AlbumSubTitle;
+
     private String AlbumArtist;
+
     private String CollectName;
+
     private String Length;
+
+    private String Size;
+
     private String BitRate;
+
     private String FlacUrl;
+
     private String AacUrl;
+
     private String SqUrl;
+
     private String HqUrl;
+
     private String LqUrl;
+
     private String ListenUrl;
+
     private String CopyUrl;
+
     private String PicUrl;
+
     private String LrcUrl;
 
-    public resultBean() {
-
-    }
-
-
-
-    public String getSongId() {
-        return SongId;
-    }
-
-    public void setSongId(String songId) {
-        SongId = songId;
-    }
-
-    public String getSubTitle() {
-        return SubTitle;
-    }
-
-    public void setSubTitle(String subTitle) {
-        SubTitle = subTitle;
-    }
-
-    public String getSongName() {
-        return SongName;
-    }
-
-    public void setSongName(String songName) {
-        SongName = songName;
-    }
-
-    public String getArtist() {
-        return Artist;
-    }
-
-    public void setArtist(String artist) {
-        Artist = artist;
-    }
-
-    public String getArtistSubTitle() {
-        return ArtistSubTitle;
-    }
-
-    public void setArtistSubTitle(String artistSubTitle) {
-        ArtistSubTitle = artistSubTitle;
-    }
-
-    public String getAlbumId() {
-        return AlbumId;
-    }
-
-    public void setAlbumId(String albumId) {
-        AlbumId = albumId;
-    }
-
-    public String getAlbum() {
-        return Album;
-    }
-
-    public void setAlbum(String album) {
-        Album = album;
-    }
-
-    public String getAlbumSubTitle() {
-        return AlbumSubTitle;
-    }
-
-    public void setAlbumSubTitle(String albumSubTitle) {
-        AlbumSubTitle = albumSubTitle;
-    }
-
-    public String getAlbumArtist() {
-        return AlbumArtist;
-    }
-
-    public void setAlbumArtist(String albumArtist) {
-        AlbumArtist = albumArtist;
-    }
-
-    public String getCollectName() {
-        return CollectName;
-    }
-
-    public void setCollectName(String collectName) {
-        CollectName = collectName;
-    }
-
-    public String getLength() {
-        return Length;
-    }
-
-    public void setLength(String length) {
-        Length = length;
-    }
-
-    public String getBitRate() {
-        return BitRate;
-    }
-
-    public void setBitRate(String bitRate) {
-        BitRate = bitRate;
-    }
-
-    public String getFlacUrl() {
-        return FlacUrl;
-    }
-
-    public void setFlacUrl(String flacUrl) {
-        FlacUrl = flacUrl;
-    }
-
-    public String getAacUrl() {
-        return AacUrl;
-    }
-
-    public void setAacUrl(String aacUrl) {
-        AacUrl = aacUrl;
-    }
-
-    public String getSqUrl() {
-        return SqUrl;
-    }
-
-    public void setSqUrl(String sqUrl) {
-        SqUrl = sqUrl;
-    }
-
-    public String getHqUrl() {
-        return HqUrl;
-    }
-
-    public void setHqUrl(String hqUrl) {
-        HqUrl = hqUrl;
-    }
-
-    public String getLqUrl() {
-        return LqUrl;
-    }
-
-    public void setLqUrl(String lqUrl) {
-        LqUrl = lqUrl;
-    }
-
-    public String getListenUrl() {
-        return ListenUrl;
-    }
-
-    public void setListenUrl(String listenUrl) {
-        ListenUrl = listenUrl;
-    }
-
-    public String getCopyUrl() {
-        return CopyUrl;
-    }
-
-    public void setCopyUrl(String copyUrl) {
-        CopyUrl = copyUrl;
-    }
-
-    public String getPicUrl() {
-        return PicUrl;
-    }
-
-    public void setPicUrl(String picUrl) {
-        PicUrl = picUrl;
-    }
-
-    public String getLrcUrl() {
-        return LrcUrl;
-    }
-
-    public void setLrcUrl(String lrcUrl) {
-        LrcUrl = lrcUrl;
-    }
-
-    public String getKlokLrc() {
-        return KlokLrc;
-    }
-
-    public void setKlokLrc(String klokLrc) {
-        KlokLrc = klokLrc;
-    }
-
-    public String getMvId() {
-        return MvId;
-    }
-
-    public void setMvId(String mvId) {
-        MvId = mvId;
-    }
-
-    public String getVideoUrl() {
-        return VideoUrl;
-    }
-
-    public void setVideoUrl(String videoUrl) {
-        VideoUrl = videoUrl;
-    }
-
-    public String getLanguage() {
-        return Language;
-    }
-
-    public void setLanguage(String language) {
-        Language = language;
-    }
-
-    public String getCompany() {
-        return Company;
-    }
-
-    public void setCompany(String company) {
-        Company = company;
-    }
-
-    public String getYear() {
-        return Year;
-    }
-
-    public void setYear(String year) {
-        Year = year;
-    }
-
-    public String getDisc() {
-        return Disc;
-    }
-
-    public void setDisc(String disc) {
-        Disc = disc;
-    }
-
-    public String getTrackNum() {
-        return TrackNum;
-    }
-
-    public void setTrackNum(String trackNum) {
-        TrackNum = trackNum;
-    }
-
-    public String getType() {
-        return Type;
-    }
-
-    public void setType(String type) {
-        Type = type;
-    }
-
     private String KlokLrc;
+
     private String MvId;
+
+    private String MvUrl;
+
     private String VideoUrl;
+
     private String Language;
+
     private String Company;
+
     private String Year;
+
     private String Disc;
+
     private String TrackNum;
+
     private String Type;
 
-
+    public void setSongId(String SongId){
+        this.SongId = SongId;
+    }
+    public String getSongId(){
+        return this.SongId;
+    }
+    public void setSongName(String SongName){
+        this.SongName = SongName;
+    }
+    public String getSongName(){
+        return this.SongName;
+    }
+    public void setSubTitle(String SubTitle){
+        this.SubTitle = SubTitle;
+    }
+    public String getSubTitle(){
+        return this.SubTitle;
+    }
+    public void setArtist(String Artist){
+        this.Artist = Artist;
+    }
+    public String getArtist(){
+        return this.Artist;
+    }
+    public void setArtistSubTitle(String ArtistSubTitle){
+        this.ArtistSubTitle = ArtistSubTitle;
+    }
+    public String getArtistSubTitle(){
+        return this.ArtistSubTitle;
+    }
+    public void setAlbumId(String AlbumId){
+        this.AlbumId = AlbumId;
+    }
+    public String getAlbumId(){
+        return this.AlbumId;
+    }
+    public void setAlbum(String Album){
+        this.Album = Album;
+    }
+    public String getAlbum(){
+        return this.Album;
+    }
+    public void setAlbumSubTitle(String AlbumSubTitle){
+        this.AlbumSubTitle = AlbumSubTitle;
+    }
+    public String getAlbumSubTitle(){
+        return this.AlbumSubTitle;
+    }
+    public void setAlbumArtist(String AlbumArtist){
+        this.AlbumArtist = AlbumArtist;
+    }
+    public String getAlbumArtist(){
+        return this.AlbumArtist;
+    }
+    public void setCollectName(String CollectName){
+        this.CollectName = CollectName;
+    }
+    public String getCollectName(){
+        return this.CollectName;
+    }
+    public void setLength(String Length){
+        this.Length = Length;
+    }
+    public String getLength(){
+        return this.Length;
+    }
+    public void setSize(String Size){
+        this.Size = Size;
+    }
+    public String getSize(){
+        return this.Size;
+    }
+    public void setBitRate(String BitRate){
+        this.BitRate = BitRate;
+    }
+    public String getBitRate(){
+        return this.BitRate;
+    }
+    public void setFlacUrl(String FlacUrl){
+        this.FlacUrl = FlacUrl;
+    }
+    public String getFlacUrl(){
+        return this.FlacUrl;
+    }
+    public void setAacUrl(String AacUrl){
+        this.AacUrl = AacUrl;
+    }
+    public String getAacUrl(){
+        return this.AacUrl;
+    }
+    public void setSqUrl(String SqUrl){
+        this.SqUrl = SqUrl;
+    }
+    public String getSqUrl(){
+        return this.SqUrl;
+    }
+    public void setHqUrl(String HqUrl){
+        this.HqUrl = HqUrl;
+    }
+    public String getHqUrl(){
+        return this.HqUrl;
+    }
+    public void setLqUrl(String LqUrl){
+        this.LqUrl = LqUrl;
+    }
+    public String getLqUrl(){
+        return this.LqUrl;
+    }
+    public void setListenUrl(String ListenUrl){
+        this.ListenUrl = ListenUrl;
+    }
+    public String getListenUrl(){
+        return this.ListenUrl;
+    }
+    public void setCopyUrl(String CopyUrl){
+        this.CopyUrl = CopyUrl;
+    }
+    public String getCopyUrl(){
+        return this.CopyUrl;
+    }
+    public void setPicUrl(String PicUrl){
+        this.PicUrl = PicUrl;
+    }
+    public String getPicUrl(){
+        return this.PicUrl;
+    }
+    public void setLrcUrl(String LrcUrl){
+        this.LrcUrl = LrcUrl;
+    }
+    public String getLrcUrl(){
+        return this.LrcUrl;
+    }
+    public void setKlokLrc(String KlokLrc){
+        this.KlokLrc = KlokLrc;
+    }
+    public String getKlokLrc(){
+        return this.KlokLrc;
+    }
+    public void setMvId(String MvId){
+        this.MvId = MvId;
+    }
+    public String getMvId(){
+        return this.MvId;
+    }
+    public void setMvUrl(String MvUrl){
+        this.MvUrl = MvUrl;
+    }
+    public String getMvUrl(){
+        return this.MvUrl;
+    }
+    public void setVideoUrl(String VideoUrl){
+        this.VideoUrl = VideoUrl;
+    }
+    public String getVideoUrl(){
+        return this.VideoUrl;
+    }
+    public void setLanguage(String Language){
+        this.Language = Language;
+    }
+    public String getLanguage(){
+        return this.Language;
+    }
+    public void setCompany(String Company){
+        this.Company = Company;
+    }
+    public String getCompany(){
+        return this.Company;
+    }
+    public void setYear(String Year){
+        this.Year = Year;
+    }
+    public String getYear(){
+        return this.Year;
+    }
+    public void setDisc(String Disc){
+        this.Disc = Disc;
+    }
+    public String getDisc(){
+        return this.Disc;
+    }
+    public void setTrackNum(String TrackNum){
+        this.TrackNum = TrackNum;
+    }
+    public String getTrackNum(){
+        return this.TrackNum;
+    }
+    public void setType(String Type){
+        this.Type = Type;
+    }
+    public String getType(){
+        return this.Type;
+    }
 }

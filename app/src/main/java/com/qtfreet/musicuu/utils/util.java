@@ -36,4 +36,5 @@ public class util {
         }
         return (date.getTime() - sDate.getTime()) / 1000;
     }
+
 }
