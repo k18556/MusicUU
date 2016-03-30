@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Message;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -27,10 +28,12 @@ import com.qtfreet.musicuu.utils.SPUtils;
 import com.qtfreet.musicuu.wiget.ActionSheetDialog;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.drakeet.uiview.UIButton;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -53,12 +56,16 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
         setContentView(R.layout.activity_search);
         initview();
         initData();
+        firstuse();
     }
 
     private void initData() {
         showRefreshing(true);
+        OkHttpClient client = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(APi.MUSICUU_API)
+                .baseUrl(APi.MUSICUU_API).client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiService apiService = retrofit.create(ApiService.class);
@@ -152,6 +159,23 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
         }
     }
 
+    private void firstuse() {
+        boolean isfirst = (boolean) SPUtils.get(this, "isdownload", true);
+        if (isfirst) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("温馨提示");
+
+            builder.setMessage("当前版本的下载功能还不完善，所以麻烦大家在下载期间请勿随意切换页面。");
+            builder.setCancelable(false);
+            builder.setNegativeButton("知道了", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    SPUtils.put(SearchActivity.this, "isdownload", false);
+                }
+            });
+            builder.show();
+        }
+    }
 
     @Override
     public void Download(View v, int position, final String songId, final String songName, final String artist, final String hqUrl, final String lqUrl, final String sqUrl, final String videoUrl, final String flacUrl, final UIButton btn_down) {
@@ -167,7 +191,7 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
                         if (lqUrl.contains(".mp3")) {
                             type = ".mp3";
                         }
-                        download(songName + "-" + artist + "-128K" + type, lqUrl, songId, btn_down);
+                        download(songName + "-" + artist + "-L" + type, lqUrl, songId, btn_down);
                     }
                 });
             }
@@ -179,7 +203,7 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
                         if (hqUrl.contains(".mp3")) {
                             type = ".mp3";
                         }
-                        download(songName + "-" + artist + "-192K" + type, hqUrl, songId, btn_down);
+                        download(songName + "-" + artist + "-H" + type, hqUrl, songId, btn_down);
 
 
                     }
@@ -193,7 +217,7 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
                         if (sqUrl.contains(".mp3")) {
                             type = ".mp3";
                         }
-                        download(songName + "-" + artist + "-320K" + type, sqUrl, songId, btn_down);
+                        download(songName + "-" + artist + "-S" + type, sqUrl, songId, btn_down);
 
 
                     }
@@ -234,24 +258,24 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
             }
             actionSheetDialog.show();
         } else {
-            if (level == 0) {
+            if (level == 0&&!lqUrl.equals("")) {
                 String type = "";
                 if (lqUrl.contains(".mp3")) {
                     type = ".mp3";
                 }
-                download(songName + "-" + artist +"128K"+ type, lqUrl, songId, btn_down);
-            } else if (level == 1) {
+                download(songName + "-" + artist + "-L" + type, lqUrl, songId, btn_down);
+            } else if (level == 1&&!hqUrl.equals("")) {
                 String type = "";
                 if (hqUrl.contains(".mp3")) {
                     type = ".mp3";
                 }
-                download(songName + "-" + artist +"192K" + type, hqUrl, songId, btn_down);
-            } else if (level == 2) {
+                download(songName + "-" + artist + "-H" + type, hqUrl, songId, btn_down);
+            } else if (level == 2&&!sqUrl.equals("")) {
                 String type = "";
                 if (sqUrl.contains(".mp3")) {
                     type = ".mp3";
                 }
-                download(songName + "-" + artist +"320K" + type, sqUrl, songId, btn_down);
+                download(songName + "-" + artist + "-S" + type, sqUrl, songId, btn_down);
             }
 
         }

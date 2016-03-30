@@ -2,9 +2,6 @@ package com.qtfreet.musicuu.ui;
 
 import android.app.Application;
 
-import com.aspsine.multithreaddownload.DownloadConfiguration;
-import com.aspsine.multithreaddownload.DownloadManager;
-import com.liulishuo.filedownloader.FileDownloader;
 import com.pgyersdk.crash.PgyCrashManager;
 
 /**
@@ -15,15 +12,5 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         PgyCrashManager.register(this);
-        initDownloader();
-        FileDownloader.init(this);
     }
-
-    private void initDownloader() {
-        DownloadConfiguration configuration = new DownloadConfiguration();
-        configuration.setMaxThreadNum(10);
-        configuration.setThreadNum(3);
-        DownloadManager.getInstance().init(getApplicationContext(), configuration);
-    }
-
 }

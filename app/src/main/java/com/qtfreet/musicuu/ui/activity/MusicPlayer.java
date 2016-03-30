@@ -2,13 +2,10 @@ package com.qtfreet.musicuu.ui.activity;
 
 import android.content.Intent;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -16,12 +13,12 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qtfreet.musicuu.R;
 import com.qtfreet.musicuu.model.MusicBean;
 import com.qtfreet.musicuu.utils.MyThreadPool;
 import com.qtfreet.musicuu.utils.SystemUtil;
-import com.qtfreet.musicuu.utils.util;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
@@ -30,26 +27,32 @@ import java.util.concurrent.ExecutorService;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import co.mobiwise.playerview.MusicPlayerView;
+import tv.danmaku.ijk.media.player.IMediaPlayer;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 /**
  * Created by qtfreet on 2016/3/20.
  */
-public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnPreparedListener {
+public class MusicPlayer extends AppCompatActivity implements IMediaPlayer.OnPreparedListener, IMediaPlayer.OnBufferingUpdateListener, IMediaPlayer.OnCompletionListener {
     private MusicPlayerView mpv;
 
     @Bind(R.id.mv)
     ImageButton mv;
-    private MediaPlayer media;
+
+    private IjkMediaPlayer ijkExoMediaPlayer;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_play);
-
         pic = MusicBean.pic;
         MvUrl = MusicBean.videoUrl;
         url = MusicBean.listenUrl;
+        if (url.equals("")) {
+            Toast.makeText(this, "未找到播放链接", Toast.LENGTH_SHORT).show();
+            return;
+        }
         time = MusicBean.time;
         initview();
         initThread();
@@ -103,15 +106,14 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     ProgressBar mSearchProgressBar;
 
     private void updataProgressBar() {
-        if (media == null) {
+        if (ijkExoMediaPlayer == null) {
             return;
         }
         if (!isShowCurrentTime) {
             return;
         }
-        int currentTime = (media.getCurrentPosition());
-        Log.e("TAG", currentTime + "");
-        tv_current_time.setText(SystemUtil.generateTime(media.getCurrentPosition()));
+        int currentTime = (int) ijkExoMediaPlayer.getCurrentPosition();
+        tv_current_time.setText(SystemUtil.generateTime(ijkExoMediaPlayer.getCurrentPosition()));
         mseekBar.setProgress(currentTime);
     }
 
@@ -131,19 +133,17 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         }).start();
         mpv.setProgressVisibility(false);
         mpv.setVisibility(View.INVISIBLE);
-        media = new MediaPlayer();
-        media.reset();
-        media.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        ijkExoMediaPlayer = new IjkMediaPlayer();
+        ijkExoMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            media.setDataSource(url);
-            media.prepareAsync();
-            media.setOnPreparedListener(this);
-            media.setOnBufferingUpdateListener(this);
-
+            ijkExoMediaPlayer.setDataSource(url);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        media.setOnCompletionListener(this);
+        ijkExoMediaPlayer.prepareAsync();
+        ijkExoMediaPlayer.setOnPreparedListener(this);
+        ijkExoMediaPlayer.setOnBufferingUpdateListener(this);
+        ijkExoMediaPlayer.setOnCompletionListener(this);
     }
 
     private void initview() {
@@ -172,8 +172,8 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                     return;
                 }
                 if (seekBar == mseekBar) {
-                    media.seekTo(progress);
-                    Log.e("TAG", progress + " ");
+                    ijkExoMediaPlayer.seekTo(progress);
+
                 }
             }
 
@@ -193,10 +193,10 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             public void onClick(View v) {
                 if (mpv.isRotating()) {
                     mpv.stop();
-                    media.pause();
+                    ijkExoMediaPlayer.pause();
                 } else {
                     mpv.start();
-                    media.start();
+                    ijkExoMediaPlayer.start();
                 }
             }
         });
@@ -209,7 +209,7 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
                 startActivity(i);
                 if (mpv.isRotating()) {
                     mpv.stop();
-                    media.pause();
+                    ijkExoMediaPlayer.pause();
 
                 }
             }
@@ -230,9 +230,9 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
     protected void onDestroy() {
         super.onDestroy();
         isShowCurrentTime = false;
-        if (media != null) {
-            media.reset();
-            media.release();
+        if (ijkExoMediaPlayer != null) {
+            ijkExoMediaPlayer.reset();
+            ijkExoMediaPlayer.release();
             mpv.stop();
         }
     }
@@ -242,12 +242,27 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
         super.onStop();
         if (mpv.isRotating()) {
             mpv.stop();
-            media.pause();
+            ijkExoMediaPlayer.pause();
         }
     }
 
+
     @Override
-    public void onCompletion(MediaPlayer mp) {
+    public void onPrepared(IMediaPlayer mp) {
+        mp.pause();
+        mpv.setVisibility(View.VISIBLE);
+        mSearchProgressBar.setVisibility(View.GONE);
+        mseekBar.setMax((int) mp.getDuration());
+        tv_duration_time.setText(SystemUtil.generateTime(mp.getDuration()));
+    }
+
+    @Override
+    public void onBufferingUpdate(IMediaPlayer mp, int percent) {
+
+    }
+
+    @Override
+    public void onCompletion(IMediaPlayer mp) {
         isShowCurrentTime = false;
         if (mpv.isRotating()) {
             mp.seekTo(0);
@@ -255,19 +270,5 @@ public class MusicPlayer extends AppCompatActivity implements MediaPlayer.OnComp
             mp.pause();
             mseekBar.setProgress(0);
         }
-    }
-
-
-    @Override
-    public void onBufferingUpdate(MediaPlayer mp, int percent) {
-        mseekBar.setMax(mp.getDuration());
-        tv_duration_time.setText(SystemUtil.generateTime(mp.getDuration()));
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        mpv.setVisibility(View.VISIBLE);
-        mSearchProgressBar.setVisibility(View.GONE);
-
     }
 }

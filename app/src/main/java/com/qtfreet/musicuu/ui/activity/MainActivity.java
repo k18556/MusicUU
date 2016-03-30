@@ -1,21 +1,30 @@
 package com.qtfreet.musicuu.ui.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,16 +36,19 @@ import com.qtfreet.musicuu.R;
 import com.qtfreet.musicuu.model.APi;
 import com.qtfreet.musicuu.model.ApiService;
 import com.qtfreet.musicuu.model.RecomendResult;
+import com.qtfreet.musicuu.ui.adapter.SimpleAdapter;
 import com.qtfreet.musicuu.utils.FileUtils;
 import com.qtfreet.musicuu.utils.SPUtils;
 import com.qtfreet.musicuu.wiget.ActionSheetDialog;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import me.drakeet.uiview.UIButton;
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -76,8 +88,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initImage() {
+        OkHttpClient client = new OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).writeTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(30, TimeUnit.SECONDS)
+                .build();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(APi.MUSIC_HOST)
+                .baseUrl(APi.MUSIC_HOST).client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiService apiService = retrofit.create(ApiService.class);
@@ -85,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         call.enqueue(new Callback<List<RecomendResult>>() {
             @Override
             public void onResponse(Call<List<RecomendResult>> call, Response<List<RecomendResult>> response) {
-                if (response == null) {
+                if (response.body() == null) {
                     return;
                 }
                 imageText = response.body().get(0).getAlbumDesp();
@@ -133,6 +148,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void checkUpdate() {
+        if (!(boolean) SPUtils.get("com.qtfreet.musicuu_preferences", this, "AutoCheck", true)) {
+            return;
+        }
         PgyUpdateManager.register(MainActivity.this,
                 new UpdateManagerListener() {
 
@@ -165,9 +183,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
     }
 
+    private void showBSDialog() {
+        final BottomSheetDialog dialog = new BottomSheetDialog(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_layout, null);
+        ListView recyclerView = (ListView) view.findViewById(R.id.bs_rv);
+        SimpleAdapter adapter = new SimpleAdapter(this, shareStr);
+        adapter.setItemClickListener(new SimpleAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(int pos) {
+                dialog.dismiss();
+                musictype = type[pos];
+            }
+        });
+        recyclerView.setAdapter(adapter);
+        dialog.setContentView(view);
+        dialog.show();
+    }
+
     private void initDir() {
         String path = (String) SPUtils.get("com.qtfreet.musicuu_preferences", this, "SavePath", "musicuu");
-        Log.e("TAG", path + "                                     11111");
+
 
         if (FileUtils.getInstance().isSdCardAvailable()) {
             if (!FileUtils.getInstance().isFileExist(path)) {
@@ -211,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void initview() {
         ButterKnife.bind(this);
-        Typeface customFont = Typeface.createFromAsset(this.getAssets(), "font/font.ttc");
+        Typeface customFont = Typeface.createFromAsset(this.getAssets(), "font/font.ttf");
         textView.setTypeface(customFont);
         btn_search = (UIButton) findViewById(R.id.btn_search);
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
@@ -266,10 +301,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
+    private static String[] shareStr = {"网易云音乐", "电信爱音乐", "5Sing", "百度音乐", "天天动听", "虾米音乐", "酷我音乐", "酷狗音乐", "多米音乐", "萌否音乐", "QQ音乐"};
+    private static String[] type = {"wy", "dx", "fs", "bd", "tt", "xm", "kw", "kg", "dm", "mf", "qq"};
+
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab:
+//                showBSDialog();
                 new ActionSheetDialog(MainActivity.this).builder().setTitle("选择音源").addSheetItem("网易云音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
                     @Override
                     public void onClick(int which) {

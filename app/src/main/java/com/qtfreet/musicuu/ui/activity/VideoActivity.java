@@ -7,10 +7,10 @@ import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
@@ -18,27 +18,25 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.qtfreet.musicuu.R;
 import com.qtfreet.musicuu.model.MusicBean;
-import com.qtfreet.musicuu.utils.MyThreadPool;
 import com.qtfreet.musicuu.utils.SystemUtil;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import io.vov.vitamio.LibsChecker;
-import io.vov.vitamio.MediaPlayer;
-import io.vov.vitamio.MediaPlayer.OnPreparedListener;
-import io.vov.vitamio.widget.VideoView;
+import tv.danmaku.ijk.media.player.IMediaPlayer;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
-public class VideoActivity extends Activity implements OnClickListener, OnCheckedChangeListener, OnSeekBarChangeListener, View.OnSystemUiVisibilityChangeListener, MediaPlayer.OnCompletionListener, OnPreparedListener {
-    private VideoView videoView;
+public class VideoActivity extends Activity implements OnClickListener, OnSeekBarChangeListener, View.OnSystemUiVisibilityChangeListener, IMediaPlayer.OnPreparedListener, IMediaPlayer.OnCompletionListener {
+
     private View controlView;
     private TextView tvDuration;
     private TextView tvCurrentTime;
@@ -48,9 +46,8 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
     private ImageView ivMore;
     private SeekBar seekBar;
     private PopupWindow popupWindow;
-    private RadioButton rbOriginSize;
-    private RadioButton rbAllSize;
-    private RadioButton rbFixAllSize;
+    SurfaceHolder holder;
+
     private SeekBar sbVolume;
     private SeekBar sbLight;
     private String videoPath;
@@ -58,6 +55,8 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
     private View main;
     @Bind(R.id.pb_search_wait)
     ProgressBar progressBar;
+    IjkMediaPlayer ijkMediaPlayer;
+    SurfaceView surfaceView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +65,10 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
 
         videoName = MusicBean.songName + " " + MusicBean.artist;
         videoPath = MusicBean.videoUrl;
-        if (!LibsChecker.checkVitamioLibs(this)) {
+        if (videoPath.equals("")) {
+            Toast.makeText(this, "未找到播放链接", Toast.LENGTH_SHORT).show();
             return;
         }
-
         main = getLayoutInflater().inflate(R.layout.activity_mv, null);
         setContentView(main);
         main.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
@@ -157,23 +156,22 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
     protected void onDestroy() {
         isShowCurrentTime = false;
         super.onDestroy();
-        if (videoView != null) {
-            
-            videoView = null;
+        if (ijkMediaPlayer != null) {
+            ijkMediaPlayer = null;
         }
 
 
     }
 
     private void updataProgressBar() {
-        if (videoView == null) {
+        if (ijkMediaPlayer == null) {
             return;
         }
         if (!isShowCurrentTime) {
             return;
         }
-        int currentTime = (int) (videoView.getCurrentPosition() / 1000);
-        tvCurrentTime.setText(SystemUtil.generateTime(videoView.getCurrentPosition()));
+        int currentTime = (int) (ijkMediaPlayer.getCurrentPosition() / 1000);
+        tvCurrentTime.setText(SystemUtil.generateTime(ijkMediaPlayer.getCurrentPosition()));
         seekBar.setProgress(currentTime);
     }
 
@@ -181,10 +179,35 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
     private void initVideoView() {
         ButterKnife.bind(this);
         progressBar.setVisibility(View.VISIBLE);
-        videoView = (VideoView) findViewById(R.id.vv);
-        videoView.setVideoURI(Uri.parse(videoPath));
-        videoView.setOnPreparedListener(this);
-        videoView.setOnCompletionListener(this);
+        surfaceView = (SurfaceView) findViewById(R.id.vv);
+        holder = surfaceView.getHolder();
+        Log.e("TAG", videoPath + "      ");
+        ijkMediaPlayer = new IjkMediaPlayer();
+        try {
+            ijkMediaPlayer.setDataSource(this, Uri.parse(videoPath));
+
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        ijkMediaPlayer.prepareAsync();
+        holder.addCallback(new SurfaceHolder.Callback() {
+            @Override
+            public void surfaceCreated(SurfaceHolder holder) {
+
+            }
+
+            @Override
+            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+                ijkMediaPlayer.setDisplay(holder);
+            }
+
+            @Override
+            public void surfaceDestroyed(SurfaceHolder holder) {
+
+            }
+        });
+        ijkMediaPlayer.setOnPreparedListener(this);
+        ijkMediaPlayer.setOnCompletionListener(this);
 
     }
 
@@ -211,13 +234,6 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
 
     private void initPopupWindow() {
         final View view = View.inflate(this, R.layout.pop_window, null);
-        rbOriginSize = (RadioButton) view.findViewById(R.id.radio2);
-        rbAllSize = (RadioButton) view.findViewById(R.id.radio0);
-        rbFixAllSize = (RadioButton) view.findViewById(R.id.radio1);
-        rbOriginSize.setOnCheckedChangeListener(this);
-        rbAllSize.setOnCheckedChangeListener(this);
-        rbFixAllSize.setOnCheckedChangeListener(this);
-
         sbVolume = (SeekBar) view.findViewById(R.id.sb_volume);
         sbLight = (SeekBar) view.findViewById(R.id.sb_light);
         sbLight.setMax(100);
@@ -251,12 +267,12 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
                 finish();
                 break;
             case R.id.iv_mode:
-                boolean isPlaying = videoView.isPlaying();
+                boolean isPlaying = ijkMediaPlayer.isPlaying();
                 if (isPlaying) {
-                    videoView.pause();
+                    ijkMediaPlayer.pause();
                     ivPlayState.setSelected(true);
                 } else {
-                    videoView.start();
+                    ijkMediaPlayer.start();
                     ivPlayState.setSelected(false);
                 }
                 break;
@@ -282,21 +298,6 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
         isControlShowing = true;
     }
 
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if (isChecked) {
-            int type = -1;
-            if (buttonView == rbOriginSize) {
-                type = 0;
-            } else if (buttonView == rbAllSize) {
-                type = 1;
-            } else if (buttonView == rbFixAllSize) {
-                type = 2;
-            }
-            changedVideoViewLayout(type);
-        }
-
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -315,9 +316,6 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
         return super.onTouchEvent(event);
     }
 
-    private void changedVideoViewLayout(int type) {
-        videoView.setVideoLayout(type, 0);
-    }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress,
@@ -330,7 +328,7 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
         } else if (seekBar == sbLight) {
             SystemUtil.setScreeBrightness(progress, this);
         } else if (seekBar == this.seekBar) {
-            videoView.seekTo(progress * 1000);
+            ijkMediaPlayer.seekTo(progress * 1000);
         }
 
     }
@@ -349,18 +347,29 @@ public class VideoActivity extends Activity implements OnClickListener, OnChecke
 
     }
 
+
     @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.e("TAG", "结束");
+    public void onPrepared(IMediaPlayer mp) {
+        mp.start();
+        progressBar.setVisibility(View.GONE);
+
+        int duration = (int) (ijkMediaPlayer.getDuration() / 1000);
+        seekBar.setMax(duration);
+        tvDuration.setText(SystemUtil.generateTime(ijkMediaPlayer.getDuration()));
+
+    }
+
+    @Override
+    public void onCompletion(IMediaPlayer mp) {
         isShowCurrentTime = false;
     }
 
     @Override
-    public void onPrepared(MediaPlayer mp) {
-        progressBar.setVisibility(View.GONE);
-        Log.e("TAG", "开始准备");
-        int duration = (int) (videoView.getDuration() / 1000);
-        seekBar.setMax(duration);
-        tvDuration.setText(SystemUtil.generateTime(videoView.getDuration()));
+    protected void onPause() {
+        super.onPause();
+        if(ijkMediaPlayer.isPlaying()){
+            ijkMediaPlayer.pause();
+            ijkMediaPlayer.stop();
+        }
     }
 }

@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <io.vov.vitamio.widget.VideoView
+    <SurfaceView
         android:id="@+id/vv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

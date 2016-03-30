@@ -31,16 +31,17 @@
             android:title="关于">
             <intent
                 android:action="android.intent.action.VIEW"
-                android:data="https://www.pgyer.com/musicuu" />
+                android:data="https://www.pgyer.com/musicspy" />
         </Preference>
 
-        <Preference
+        <com.qtfreet.musicuu.wiget.DialogPreference
+            android:dialogMessage="音乐间谍（第三方版）本着开源开发的一款工具类App，请勿将此软件用于任何非法用途，本软件仅供学习交流，使用此软件即代表默认遵守此声明，本人将不对此负任何法律责任！"
+            android:dialogTitle="免责声明"
+            android:title="免责声明"
+            android:key="DialogPreference"
             android:layout="@layout/preference_item"
-            android:title="手动检查更新">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:data="https://www.pgyer.com/musicuu" />
-        </Preference>
+            android:positiveButtonText="@null"
+            android:negativeButtonText="同意"></com.qtfreet.musicuu.wiget.DialogPreference>
     </PreferenceCategory>
 
     <PreferenceCategory
