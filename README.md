@@ -3,9 +3,7 @@
 
 ####使用到的开源项目
 #####网络请求框架
-[OKhttpUtils](https://github.com/hongyangAndroid/okhttp-utils)  
-[Okhttp](https://github.com/square/okhttp)  
-[Okio](https://github.com/square/okio)  
+[retrofit2](https://github.com/square/retrofit)  
 
 #####json解析
 [Gson](https://github.com/google/gson)  
