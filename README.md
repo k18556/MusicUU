@@ -1,5 +1,5 @@
-# 音乐间谍
-搭建一个简单的音乐间谍第三方客户端
+# 音乐助手
+一个免费下载音乐的App
 
 ####使用到的开源项目
 #####网络请求框架
@@ -9,7 +9,7 @@
 [Gson](https://github.com/google/gson)  
 
 #####视频播放
-[Vitamio](https://github.com/yixia/VitamioBundle)  
+[ijkplayer](https://github.com/Bilibili/ijkplayer)  
 
 #####图片加载
 [picasso](https://github.com/square/picasso)  

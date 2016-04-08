@@ -2,6 +2,7 @@ package com.qtfreet.musicuu.ui.activity;
 
 import android.content.Intent;
 import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -27,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import co.mobiwise.playerview.MusicPlayerView;
+import retrofit2.http.Url;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
@@ -48,8 +50,13 @@ public class MusicPlayer extends AppCompatActivity implements IMediaPlayer.OnPre
         setContentView(R.layout.activity_play);
         pic = MusicBean.pic;
         MvUrl = MusicBean.videoUrl;
-        url = MusicBean.listenUrl;
-        if (url.equals("")) {
+        if (!MusicBean.sqUrl.equals("")) {
+            url = MusicBean.sqUrl;
+        } else if (!MusicBean.hqUrl.equals("")) {
+            url = MusicBean.hqUrl;
+        } else if (!MusicBean.lqUrl.equals("")) {
+            url = MusicBean.lqUrl;
+        } else {
             Toast.makeText(this, "未找到播放链接", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -136,7 +143,7 @@ public class MusicPlayer extends AppCompatActivity implements IMediaPlayer.OnPre
         ijkExoMediaPlayer = new IjkMediaPlayer();
         ijkExoMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
         try {
-            ijkExoMediaPlayer.setDataSource(url);
+            ijkExoMediaPlayer.setDataSource(this,Uri.parse(url));
         } catch (IOException e) {
             e.printStackTrace();
         }

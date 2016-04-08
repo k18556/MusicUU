@@ -1,23 +1,16 @@
 package com.qtfreet.musicuu.model;
 
 /**
- * Created by qtfreet on 2016/3/29.
+ * Created by qtfreet on 2016/4/6.
  */
 public class RecomendResult {
     private String AlbumId;
-
     private String AlbumName;
-
     private String AlbumTime;
-
     private String AlbumDesp;
-
     private String AlnumPic;
-
     private int SubType;
-
     private String Tags;
-
     private String DownUrl;
 
     public void setAlbumId(String AlbumId) {
@@ -83,5 +76,4 @@ public class RecomendResult {
     public String getDownUrl() {
         return this.DownUrl;
     }
-
 }

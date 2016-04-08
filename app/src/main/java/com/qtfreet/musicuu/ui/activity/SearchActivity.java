@@ -1,5 +1,6 @@
 package com.qtfreet.musicuu.ui.activity;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +27,9 @@ import com.qtfreet.musicuu.ui.adapter.SearchResultAdapter;
 import com.qtfreet.musicuu.utils.DownloadUtil;
 import com.qtfreet.musicuu.utils.SPUtils;
 import com.qtfreet.musicuu.wiget.ActionSheetDialog;
+import com.zhy.m.permission.MPermissions;
+import com.zhy.m.permission.PermissionDenied;
+import com.zhy.m.permission.PermissionGrant;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -49,14 +53,34 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
 
     @Bind(R.id.lv_search_result)
     ListView search_list;
+    private static final int REQUECT_CODE_SDCARD = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+        MPermissions.requestPermissions(SearchActivity.this, REQUECT_CODE_SDCARD, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         initview();
         initData();
         firstuse();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        MPermissions.onRequestPermissionsResult(this, requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+
+    @PermissionGrant(REQUECT_CODE_SDCARD)
+    public void requestSdcardSuccess() {
+
+    }
+
+    @PermissionDenied(REQUECT_CODE_SDCARD)
+    public void requestSdcardFailed() {
+        Toast.makeText(this, "未获取到SD卡权限!", Toast.LENGTH_SHORT).show();
+
     }
 
     private void initData() {
@@ -65,20 +89,21 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
                 .readTimeout(30, TimeUnit.SECONDS)
                 .build();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(APi.MUSICUU_API).client(client)
+                .baseUrl(APi.MUSIC_HOST).client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         ApiService apiService = retrofit.create(ApiService.class);
-
-        Call<List<resultBean>> call = apiService.GetInfo(getIntent().getExtras().getString("type"), getIntent().getExtras().getString("key"), "json");
+        Call<List<resultBean>> call = apiService.GetInfo(getIntent().getExtras().getString("type"), getIntent().getExtras().getString("key"));
         call.enqueue(new Callback<List<resultBean>>() {
-
             @Override
             public void onResponse(Call<List<resultBean>> call, Response<List<resultBean>> response) {
                 showRefreshing(false);
+                if (response.body().size() == 0) {
+                    handler.sendEmptyMessage(REQUEST_ERROR);
+                    return;
+                }
                 result = response.body();
                 handler.sendEmptyMessage(REQUEST_SUCCESS);
-
 
             }
 
@@ -119,6 +144,9 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
                             MusicBean.videoUrl = result.get(position).getVideoUrl();
                             MusicBean.songName = result.get(position).getSongName();
                             MusicBean.artist = result.get(position).getArtist();
+                            MusicBean.hqUrl = result.get(position).getHqUrl();
+                            MusicBean.sqUrl = result.get(position).getSqUrl();
+                            MusicBean.lqUrl = result.get(position).getLqUrl();
                             Intent i = new Intent(SearchActivity.this, MusicPlayer.class);
                             startActivity(i);
                         }
@@ -258,19 +286,19 @@ public class SearchActivity extends AppCompatActivity implements DownListener, S
             }
             actionSheetDialog.show();
         } else {
-            if (level == 0&&!lqUrl.equals("")) {
+            if (level == 0 && !lqUrl.equals("")) {
                 String type = "";
                 if (lqUrl.contains(".mp3")) {
                     type = ".mp3";
                 }
                 download(songName + "-" + artist + "-L" + type, lqUrl, songId, btn_down);
-            } else if (level == 1&&!hqUrl.equals("")) {
+            } else if (level == 1 && !hqUrl.equals("")) {
                 String type = "";
                 if (hqUrl.contains(".mp3")) {
                     type = ".mp3";
                 }
                 download(songName + "-" + artist + "-H" + type, hqUrl, songId, btn_down);
-            } else if (level == 2&&!sqUrl.equals("")) {
+            } else if (level == 2 && !sqUrl.equals("")) {
                 String type = "";
                 if (sqUrl.contains(".mp3")) {
                     type = ".mp3";

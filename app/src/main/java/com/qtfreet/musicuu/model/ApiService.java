@@ -11,9 +11,11 @@ import retrofit2.http.Query;
  * Created by qtfreet on 2016/3/25.
  */
 public interface ApiService {
-    @GET("music/search/{type}/{key}/1")
-    Call<List<resultBean>> GetInfo(@Path("type") String type, @Path("key") String key, @Query("format") String format);
+    @GET("search/{type}/{key}?p=1&f=json&sign=yyfm")
+    Call<List<resultBean>> GetInfo(@Path("type") String type, @Path("key") String key);
 
     @GET("vol/all")
     Call<List<RecomendResult>> GetRec(@Query("t") String t, @Query("p") String f, @Query("f") String json);
+
+
 }

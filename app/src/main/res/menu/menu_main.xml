@@ -4,7 +4,8 @@
     tools:context=".ui.activity.MainActivity">
     <item
         android:id="@+id/action_settings"
+        android:icon="@drawable/setting"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="always" />
 </menu>

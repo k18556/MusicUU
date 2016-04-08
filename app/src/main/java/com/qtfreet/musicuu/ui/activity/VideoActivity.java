@@ -6,15 +6,16 @@ import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
@@ -62,7 +63,7 @@ public class VideoActivity extends Activity implements OnClickListener, OnSeekBa
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         videoName = MusicBean.songName + " " + MusicBean.artist;
         videoPath = MusicBean.videoUrl;
         if (videoPath.equals("")) {
@@ -73,8 +74,6 @@ public class VideoActivity extends Activity implements OnClickListener, OnSeekBa
         setContentView(main);
         main.setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
         hideNag();
-
-
         initControlView();
 
         initVideoView();
@@ -367,9 +366,19 @@ public class VideoActivity extends Activity implements OnClickListener, OnSeekBa
     @Override
     protected void onPause() {
         super.onPause();
-        if(ijkMediaPlayer.isPlaying()){
+        if (ijkMediaPlayer.isPlaying()) {
             ijkMediaPlayer.pause();
             ijkMediaPlayer.stop();
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //捕获返回键按下的事件
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            finish();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

@@ -1,6 +1,5 @@
 package com.qtfreet.musicuu.ui.activity;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -10,17 +9,12 @@ import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -41,6 +35,8 @@ import com.qtfreet.musicuu.utils.FileUtils;
 import com.qtfreet.musicuu.utils.SPUtils;
 import com.qtfreet.musicuu.wiget.ActionSheetDialog;
 import com.squareup.picasso.Picasso;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -67,6 +63,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initview();
         initImage();
         checkUpdate();
+
+    }
+// QQ音乐 "http://soso.music.qq.com/fcgi-bin/music_search_new_platform?t=0&n=20&g_tk=157256710&loginUin=584586119&hostUin=0&format=jsonp&inCharset=GB2312&outCharset=utf-8&notice=0&platform=newframe&jsonpCallback=jsnp_callback&needNewCode=0&w=i&p=1&catZhida=1&remoteplace=sizer.newclient.song_all&searchid=11040987310239770213&clallback=jsnp_callback&lossless=0"
+// 酷狗音乐 "http://mobilecdn.kugou.com/api/v3/search/song?format=jsonp&keyword=i&page=1&pagesize=20&showtype=1"
+// 酷我音乐 "http://search.kuwo.cn/r.s?all=i&ft=music&itemset=web_2013&client=kt&pn=0&rn=20&rformat=json&encoding=utf8"
+// 5sing "http://search.5sing.kugou.com/home/json?keyword=%E9%82%A3%E4%B8%80%E5%A4%9C&type=0&filter=0&sort=0&page=1&callback=succes"
+// 天天动听 "http://search.dongting.com/song/search/old?q=i&page=1&size=10"
+// 网易云如下
+
+    private void initnetease() {
+        String url = "http://music.163.com/api/search/pc";
+        OkHttpUtils.post().url(url).addHeader("Content-Type", "application/x-www-form-urlencoded")
+                .addHeader("Host", "music.163.com").addHeader("Cookie", "os=pc; MUSIC_U=5339640232")
+                .addParams("offset", "0").addParams("total", "true").addParams("limit", "50").addParams("type", "1")
+                .addParams("s", "i").build().execute(new StringCallback() {
+
+            @Override
+            public void onError(okhttp3.Call call, Exception e) {
+
+            }
+
+            @Override
+            public void onResponse(String arg0) {
+                System.out.println(arg0);
+                Log.e("TAG", arg0);
+
+            }
+
+
+        });
     }
 
     private void firstuse() {
@@ -250,7 +276,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         textView.setTypeface(customFont);
         btn_search = (UIButton) findViewById(R.id.btn_search);
         FloatingActionButton floatingActionButton = (FloatingActionButton) findViewById(R.id.fab);
-
         musictype = "wy";
         if (toolbar != null) {
             setSupportActionBar(toolbar);
@@ -301,13 +326,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
-    private static String[] shareStr = {"网易云音乐", "电信爱音乐", "5Sing", "百度音乐", "天天动听", "虾米音乐", "酷我音乐", "酷狗音乐", "多米音乐", "萌否音乐", "QQ音乐"};
-    private static String[] type = {"wy", "dx", "fs", "bd", "tt", "xm", "kw", "kg", "dm", "mf", "qq"};
+    private static String[] shareStr = {"网易云音乐", "电信爱音乐", "百度音乐", "天天动听", "虾米音乐", "酷我音乐", "酷狗音乐", "多米音乐", "萌否音乐", "QQ音乐"};
+    private static String[] type = {"wy", "dx", "bd", "tt", "xm", "kw", "kg", "dm", "mf", "qq"};
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab:
+
 //                showBSDialog();
                 new ActionSheetDialog(MainActivity.this).builder().setTitle("选择音源").addSheetItem("网易云音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
                     @Override
@@ -318,11 +344,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void onClick(int which) {
                         musictype = "dx";
-                    }
-                }).addSheetItem("5Sing", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
-                    @Override
-                    public void onClick(int which) {
-                        musictype = "fs";
                     }
                 }).addSheetItem("百度音乐", ActionSheetDialog.SheetItemColor.Blue, new ActionSheetDialog.OnSheetItemClickListener() {
                     @Override
